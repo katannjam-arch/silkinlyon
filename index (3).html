@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Silk in France</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+
+/* ---------- GLOBAL ---------- */
+
+body {
+  margin: 0;
+  background: black;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+}
+
+/* ---------- HEADER ---------- */
+
+.site-header {
+  height: 500px;
+  background: black;
+  display: flex;
+  align-items: center;
+}
+
+.header-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 40px;
+}
+
+.logo {
+  height: 70%;
+  max-height: 350px;
+  object-fit: contain;
+}
+
+/* ---------- MAP SECTION ---------- */
+
+.map-section {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+#map {
+  height: 80vh;
+  width: 90vw;
+  min-width: 500px;
+  max-width: 1200px;
+  background: black;
+}
+
+/* ---------- POPUP STYLING ---------- */
+
+.leaflet-popup-content-wrapper {
+  background: white;
+  color: black;
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid black;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.leaflet-popup-tip {
+  display: none;
+}
+
+.popup-content img {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.popup-content a {
+  color: black;
+  text-decoration: underline;
+  font-size: 12px;
+}
+
+/* ---------- FOOTER ---------- */
+
+.site-footer {
+  background: black;
+  color: white;
+  padding: 60px 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <!-- Replace with your image path -->
+    <img src="https://wvn.maq.mybluehost.me/website_0d1fd808/wp-content/uploads/2026/02/Untitled-design-2.webp" alt="Silk in France Logo" class="logo">
+  </div>
+</header>
+
+<!-- MAP -->
+<section class="map-section">
+  <div id="map"></div>
+</section>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+/* ---------- CREATE MAP ---------- */
+
+var map = L.map('map', {
+  zoomControl: false,
+  attributionControl: false,
+  minZoom: 5.5,
+  maxZoom: 9
+});
+
+/* ---------- STORE MUSEUMS ---------- */
+
+var museums = [];
+
+function addMuseum(lat, lng, name, img, link, description) {
+  museums.push({ lat, lng, name, img, link, description });
+}
+
+/* ---------- LOAD FRANCE ---------- */
+
+fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
+  .then(response => response.json())
+  .then(data => {
+
+    var franceLayer = L.geoJSON(data, {
+      style: {
+        color: "white",
+        fillColor: "white",
+        fillOpacity: 1,
+        weight: 0
+      }
+    }).addTo(map);
+
+    var bounds = franceLayer.getBounds();
+
+    map.fitBounds(bounds, {
+      padding: [40, 40],
+      animate: true,
+      duration: 1.2
+    });
+
+    map.setMaxBounds(bounds.pad(0.2));
+    map.invalidateSize();
+
+    /* ---------- ADD MUSEUM MARKERS ---------- */
+
+    museums.forEach(m => {
+
+      var marker = L.circleMarker([m.lat, m.lng], {
+        radius: 6,
+        fillColor: "black",
+        color: "white",
+        weight: 1.5,
+        fillOpacity: 1
+      }).addTo(map);
+
+      var popupContent = `
+        <div class="popup-content">
+          <strong>${m.name}</strong><br><br>
+          <img src="${m.img}">
+          ${m.description}<br><br>
+          <a href="${m.link}" target="_blank">Visit website</a>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        closeButton: false,
+        autoClose: false
+      });
+
+      marker.on('mouseover', function () {
+        this.openPopup();
+      });
+
+      marker.on('mouseout', function () {
+        this.closePopup();
+      });
+
+    });
+
+  });
+
+/* ---------- SAMPLE MUSEUM ---------- */
+
+addMuseum(
+  48.8606, 
+  2.3376, 
+  "Louvre Museum",
+  "https://upload.wikimedia.org/wikipedia/commons/a/a6/Paris_July_2011-27a.jpg",
+  "https://www.louvre.fr",
+  "Historic museum in Paris."
+);
+
+</script>
+
+
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>© 2026 Silk in France</p>
+  </div>
+</footer>
+
+</body>
+</html>
