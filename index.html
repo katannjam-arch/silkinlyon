@@ -48,11 +48,19 @@ body {
 }
 
 #map {
-  height: 80vh;
+  position: relative;
+  height: 600px;
   width: 90vw;
   min-width: 500px;
   max-width: 1200px;
-  background: black;
+  margin: 0 auto;
+
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
+
+  background-size: cover;
+  background-position: center;
 }
 
 /* ---------- POPUP STYLING ---------- */
