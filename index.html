@@ -55,12 +55,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
 
-  background-image: 
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-    url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
-
-  background-size: cover;
-  background-position: center;
 }
 
 /* ---------- POPUP STYLING ---------- */
@@ -138,6 +132,27 @@ var map = L.map('map', {
   maxZoom: 9
 });
 
+/* ---------- MAP BACKGROUND ---------- */
+  
+var svg = L.svg().addTo(map);
+
+var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+svg._container.appendChild(defs);
+
+var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+pattern.setAttribute("id", "franceTexture");
+pattern.setAttribute("patternUnits", "userSpaceOnUse");
+pattern.setAttribute("width", "600");
+pattern.setAttribute("height", "600");
+
+var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+image.setAttributeNS("http://www.w3.org/1999/xlink", "href", "https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
+image.setAttribute("width", "600");
+image.setAttribute("height", "600");
+
+pattern.appendChild(image);
+defs.appendChild(pattern);
+
 /* ---------- STORE MUSEUMS ---------- */
 
 var museums = [];
@@ -152,14 +167,14 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
   .then(response => response.json())
   .then(data => {
 
-    var franceLayer = L.geoJSON(data, {
-      style: {
-        color: "white",
-        fillColor: "white",
-        fillOpacity: 1,
-        weight: 0
-      }
-    }).addTo(map);
+var franceLayer = L.geoJSON(data, {
+  style: {
+    fillColor: "url(#franceTexture)",
+    fillOpacity: 1,
+    color: "gold",
+    weight: 1
+  }
+}).addTo(map);
 
     var bounds = franceLayer.getBounds();
 
