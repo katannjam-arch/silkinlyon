@@ -143,36 +143,50 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
 .then(response => response.json())
 .then(data => {
 
-  // France outline layer
+  // Add SVG renderer
+  var svgLayer = L.svg().addTo(map);
+
+  // Create SVG pattern
+  var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+  var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+  pattern.setAttribute("id", "franceImage");
+  pattern.setAttribute("patternUnits", "objectBoundingBox");
+  pattern.setAttribute("width", "1");
+  pattern.setAttribute("height", "1");
+
+  var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+  image.setAttributeNS("http://www.w3.org/1999/xlink","href","your-image.jpg"); // replace image
+  image.setAttribute("width","100%");
+  image.setAttribute("height","100%");
+  image.setAttribute("preserveAspectRatio","xMidYMid slice");
+
+  pattern.appendChild(image);
+  defs.appendChild(pattern);
+
+  svgLayer._container.appendChild(defs);
+
+  // France polygon
   var franceLayer = L.geoJSON(data, {
     style: {
+      fill: "url(#franceImage)",
+      fillOpacity: 1,
       color: "#D4AF37",
-      weight: 2,
-      fillOpacity: .5
+      weight: 2
     }
   }).addTo(map);
 
   var bounds = franceLayer.getBounds();
 
-  // Image that fills France bounds
-  var franceTexture = L.imageOverlay(
-    "https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg",   // replace with your image
-    bounds,
-    { opacity: 0.9 }
-  ).addTo(map);
-
-  franceTexture.bringToBack();
-
   map.fitBounds(bounds, {
-    padding: [40, 40],
+    padding: [40,40],
     animate: true,
     duration: 1.2
   });
 
   map.setMaxBounds(bounds.pad(0.2));
-  map.invalidateSize();
 
-  // Add museum markers
+  // Add museums
   museums.forEach(m => {
 
     var marker = L.circleMarker([m.lat, m.lng], {
@@ -197,13 +211,8 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
       autoClose: false
     });
 
-    marker.on('mouseover', function () {
-      this.openPopup();
-    });
-
-    marker.on('mouseout', function () {
-      this.closePopup();
-    });
+    marker.on('mouseover', function () { this.openPopup(); });
+    marker.on('mouseout', function () { this.closePopup(); });
 
   });
 
