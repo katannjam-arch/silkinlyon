@@ -48,13 +48,15 @@ body {
 }
 
 #map {
-  position: relative;
   height: 600px;
   width: 90vw;
   min-width: 500px;
   max-width: 1200px;
   margin: 0 auto;
 
+  background-image: url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
 /* ---------- POPUP STYLING ---------- */
@@ -138,41 +140,17 @@ function addMuseum(lat, lng, name, img, link, description) {
   museums.push({ lat, lng, name, img, link, description });
 }
 
+
 // Load France
 fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
 .then(response => response.json())
 .then(data => {
 
-  // Add SVG renderer
-  var svgLayer = L.svg().addTo(map);
-
-  // Create SVG pattern
-  var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-
-  var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-  pattern.setAttribute("id", "franceImage");
-  pattern.setAttribute("patternUnits", "objectBoundingBox");
-  pattern.setAttribute("width", "1");
-  pattern.setAttribute("height", "1");
-
-  var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-  image.setAttributeNS("http://www.w3.org/1999/xlink","href","https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg"); // replace image
-  image.setAttribute("width","100%");
-  image.setAttribute("height","100%");
-  image.setAttribute("preserveAspectRatio","xMidYMid slice");
-
-  pattern.appendChild(image);
-  defs.appendChild(pattern);
-
-  svgLayer._container.appendChild(defs);
-
-  // France polygon
   var franceLayer = L.geoJSON(data, {
     style: {
-      fill: "url(#franceImage)",
-      fillOpacity: 1,
       color: "#D4AF37",
-      weight: 2
+      weight: 2,
+      fillOpacity: 0
     }
   }).addTo(map);
 
@@ -186,7 +164,25 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
 
   map.setMaxBounds(bounds.pad(0.2));
 
-  // Add museums
+  // Create black mask outside France
+  var world = [
+    [-90,-180],
+    [-90,180],
+    [90,180],
+    [90,-180]
+  ];
+
+  var franceCoords = data.features[0].geometry.coordinates;
+
+  L.polygon([world, franceCoords], {
+    color: "black",
+    fillColor: "black",
+    fillOpacity: 1,
+    weight: 0
+  }).addTo(map);
+
+
+  // Add museum markers
   museums.forEach(m => {
 
     var marker = L.circleMarker([m.lat, m.lng], {
