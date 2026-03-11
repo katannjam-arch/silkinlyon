@@ -153,14 +153,6 @@ image.setAttribute("height", "600");
 pattern.appendChild(image);
 defs.appendChild(pattern);
 
-/* ---------- STORE MUSEUMS ---------- */
-
-var museums = [];
-
-function addMuseum(lat, lng, name, img, link, description) {
-  museums.push({ lat, lng, name, img, link, description });
-}
-
 /* ---------- LOAD FRANCE ---------- */
 
 fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
@@ -170,7 +162,7 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
 var franceLayer = L.geoJSON(data, {
   style: {
     fillColor: "url(#franceTexture)",
-    fillOpacity: 1,
+    fillOpacity: 0,
     color: "gold",
     weight: 1
   }
@@ -184,10 +176,27 @@ var franceLayer = L.geoJSON(data, {
       duration: 1.2
     });
 
+    var bounds = franceLayer.getBounds();
+
+    var franceImage = L.imageOverlay("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg", bounds, {
+        opacity: 1
+    }).addTo(map);
+
+franceImage.bringToBack();
+
     map.setMaxBounds(bounds.pad(0.2));
     map.invalidateSize();
+  
+  /* ---------- STORE MUSEUMS ---------- */
 
-    /* ---------- ADD MUSEUM MARKERS ---------- */
+var museums = [];
+
+function addMuseum(lat, lng, name, img, link, description) {
+  museums.push({ lat, lng, name, img, link, description });
+}
+
+
+/* ---------- ADD MUSEUM MARKERS ---------- */
 
     museums.forEach(m => {
 
