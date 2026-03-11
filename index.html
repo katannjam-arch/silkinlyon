@@ -2,220 +2,162 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Silk in France</title>
+<title>Silk in France Map</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 
-/* ---------- GLOBAL ---------- */
-
-body {
-  margin: 0;
-  background: black;
-  font-family: Helvetica, Arial, sans-serif;
-  color: white;
+body{
+  margin:0;
+  background:black;
+  font-family:Helvetica, Arial, sans-serif;
 }
 
-/* ---------- HEADER ---------- */
+#map{
+  height:600px;
+  width:90vw;
+  min-width:500px;
+  max-width:1200px;
+  margin:60px auto;
 
-.site-header {
-  height: 500px;
-  background: black;
-  display: flex;
-  align-items: center;
+  /* image visible through France */
+  background-image:url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
+  background-size:cover;
+  background-position:center;
 }
 
-.header-inner {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 40px;
+/* popup styling */
+
+.leaflet-popup-content-wrapper{
+  background:white;
+  color:black;
+  border-radius:0;
+  box-shadow:none;
+  border:1px solid black;
+  font-size:13px;
 }
 
-.logo {
-  height: 70%;
-  max-height: 350px;
-  object-fit: contain;
+.leaflet-popup-tip{
+  display:none;
 }
 
-/* ---------- MAP SECTION ---------- */
-
-.map-section {
-  display: flex;
-  justify-content: center;
-  padding: 60px 0;
+.popup-content img{
+  width:100%;
+  margin-bottom:6px;
 }
 
-#map {
-  height: 600px;
-  width: 90vw;
-  min-width: 500px;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  background-image: url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
-  background-size: cover;
-  background-position: center;
-}
-
-/* ---------- POPUP STYLING ---------- */
-
-.leaflet-popup-content-wrapper {
-  background: white;
-  color: black;
-  border-radius: 0;
-  box-shadow: none;
-  border: 1px solid black;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-}
-
-.leaflet-popup-tip {
-  display: none;
-}
-
-.popup-content img {
-  width: 100%;
-  margin-bottom: 6px;
-}
-
-.popup-content a {
-  color: black;
-  text-decoration: underline;
-  font-size: 12px;
-}
-
-/* ---------- FOOTER ---------- */
-
-.site-footer {
-  background: black;
-  color: white;
-  padding: 60px 0;
-  border-top: 1px solid rgba(255,255,255,0.15);
-}
-
-.footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.popup-content a{
+  color:black;
+  text-decoration:underline;
+  font-size:12px;
 }
 
 </style>
 </head>
+
 <body>
 
-<!-- HEADER -->
-<header class="site-header">
-  <div class="header-inner">
-    <!-- Replace with your image path -->
-    <img src="/logo.jpg" alt="Silk in France Logo" class="logo">
-  </div>
-</header>
-
-<!-- MAP -->
-<section class="map-section">
-  <div id="map"></div>
-</section>
+<div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 
-// Create map
-var map = L.map('map', {
-  zoomControl: false,
-  attributionControl: false,
-  minZoom: 5.5,
-  maxZoom: 9
+// create map
+var map = L.map('map',{
+  zoomControl:false,
+  attributionControl:false,
+  minZoom:5.5,
+  maxZoom:9
 });
 
-// Store museums
-var museums = [];
+var museums=[];
 
-function addMuseum(lat, lng, name, img, link, description) {
-  museums.push({ lat, lng, name, img, link, description });
+function addMuseum(lat,lng,name,img,link,description){
+  museums.push({lat,lng,name,img,link,description});
 }
 
 
-// Load France
+// load france geometry
 fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
-.then(response => response.json())
-.then(data => {
+.then(res=>res.json())
+.then(data=>{
 
-  var franceLayer = L.geoJSON(data, {
-    style: {
-      color: "#D4AF37",
-      weight: 2,
-      fillOpacity: 0
+  var france=L.geoJSON(data,{
+    style:{
+      color:"#D4AF37",
+      weight:2,
+      fillOpacity:0
     }
   }).addTo(map);
 
-  var bounds = franceLayer.getBounds();
+  var bounds=france.getBounds();
 
-  map.fitBounds(bounds, {
-    padding: [40,40],
-    animate: true,
-    duration: 1.2
+  map.fitBounds(bounds,{
+    padding:[40,40],
+    animate:true,
+    duration:1.2
   });
 
   map.setMaxBounds(bounds.pad(0.2));
 
-  // Create black mask outside France
-  var world = [
+
+  /* create black mask outside france */
+
+  var world=[
     [-90,-180],
     [-90,180],
     [90,180],
     [90,-180]
   ];
 
-  var franceCoords = data.features[0].geometry.coordinates;
+  var franceCoords=data.features[0].geometry.coordinates;
 
-  L.polygon([world, franceCoords], {
-    color: "black",
-    fillColor: "black",
-    fillOpacity: 1,
-    weight: 0
+  L.polygon([world,franceCoords],{
+    color:"black",
+    fillColor:"black",
+    fillOpacity:1,
+    weight:0
   }).addTo(map);
 
 
-  // Add museum markers
-  museums.forEach(m => {
+  /* add museum markers */
 
-    var marker = L.circleMarker([m.lat, m.lng], {
-      radius: 7,
-      fillColor: "black",
-      color: "white",
-      weight: 1.5,
-      fillOpacity: 1
+  museums.forEach(m=>{
+
+    var marker=L.circleMarker([m.lat,m.lng],{
+      radius:7,
+      fillColor:"black",
+      color:"white",
+      weight:1.5,
+      fillOpacity:1
     }).addTo(map);
 
-    var popupContent = `
+    var popup=`
       <div class="popup-content">
-        <strong>${m.name}</strong><br><br>
-        <img src="${m.img}">
-        ${m.description}<br><br>
-        <a href="${m.link}" target="_blank">Visit website</a>
+      <strong>${m.name}</strong><br><br>
+      <img src="${m.img}">
+      ${m.description}<br><br>
+      <a href="${m.link}" target="_blank">Visit website</a>
       </div>
     `;
 
-    marker.bindPopup(popupContent, {
-      closeButton: false,
-      autoClose: false
+    marker.bindPopup(popup,{
+      closeButton:false,
+      autoClose:false
     });
 
-    marker.on('mouseover', function () { this.openPopup(); });
-    marker.on('mouseout', function () { this.closePopup(); });
+    marker.on("mouseover",function(){this.openPopup();});
+    marker.on("mouseout",function(){this.closePopup();});
 
   });
 
 });
 
 
-// Example museum
+// example museum
+
 addMuseum(
   48.8606,
   2.3376,
@@ -226,14 +168,6 @@ addMuseum(
 );
 
 </script>
-
-
-
-<footer class="site-footer">
-  <div class="footer-inner">
-    <p>© 2026 Silk in France</p>
-  </div>
-</footer>
 
 </body>
 </html>
