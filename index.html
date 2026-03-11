@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<title>Silk in France Map</title>
+<meta charset="utf-8">
+<title>Silk in France</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
 
 body{
   margin:0;
   background:black;
-  font-family:Helvetica, Arial, sans-serif;
+  font-family:Helvetica,Arial,sans-serif;
 }
 
 #map{
@@ -20,22 +20,15 @@ body{
   min-width:500px;
   max-width:1200px;
   margin:60px auto;
-
-  /* image visible through France */
-  background-image:url("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
-  background-size:cover;
-  background-position:center;
+  background:black;
 }
-
-/* popup styling */
 
 .leaflet-popup-content-wrapper{
   background:white;
   color:black;
   border-radius:0;
-  box-shadow:none;
   border:1px solid black;
-  font-size:13px;
+  box-shadow:none;
 }
 
 .leaflet-popup-tip{
@@ -45,12 +38,6 @@ body{
 .popup-content img{
   width:100%;
   margin-bottom:6px;
-}
-
-.popup-content a{
-  color:black;
-  text-decoration:underline;
-  font-size:12px;
 }
 
 </style>
@@ -64,7 +51,6 @@ body{
 
 <script>
 
-// create map
 var map = L.map('map',{
   zoomControl:false,
   attributionControl:false,
@@ -78,8 +64,6 @@ function addMuseum(lat,lng,name,img,link,description){
   museums.push({lat,lng,name,img,link,description});
 }
 
-
-// load france geometry
 fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
 .then(res=>res.json())
 .then(data=>{
@@ -102,27 +86,16 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
 
   map.setMaxBounds(bounds.pad(0.2));
 
+  /* add image covering france bounds */
 
-  /* create black mask outside france */
+  var image=L.imageOverlay(
+    "https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg",
+    bounds
+  ).addTo(map);
 
-  var world=[
-    [-90,-180],
-    [-90,180],
-    [90,180],
-    [90,-180]
-  ];
+  image.bringToBack();
 
-  var franceCoords=data.features[0].geometry.coordinates;
-
-  L.polygon([world,franceCoords],{
-    color:"black",
-    fillColor:"black",
-    fillOpacity:1,
-    weight:0
-  }).addTo(map);
-
-
-  /* add museum markers */
+  /* add museums */
 
   museums.forEach(m=>{
 
@@ -155,8 +128,6 @@ fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/F
 
 });
 
-
-// example museum
 
 addMuseum(
   48.8606,
