@@ -123,8 +123,7 @@ body {
 
 <script>
 
-/* ---------- CREATE MAP ---------- */
-
+// Create map
 var map = L.map('map', {
   zoomControl: false,
   attributionControl: false,
@@ -132,113 +131,89 @@ var map = L.map('map', {
   maxZoom: 9
 });
 
-/* ---------- MAP BACKGROUND ---------- */
-  
-var svg = L.svg().addTo(map);
-
-var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-svg._container.appendChild(defs);
-
-var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-pattern.setAttribute("id", "franceTexture");
-pattern.setAttribute("patternUnits", "userSpaceOnUse");
-pattern.setAttribute("width", "600");
-pattern.setAttribute("height", "600");
-
-var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-image.setAttributeNS("http://www.w3.org/1999/xlink", "href", "https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg");
-image.setAttribute("width", "600");
-image.setAttribute("height", "600");
-
-pattern.appendChild(image);
-defs.appendChild(pattern);
-
-/* ---------- LOAD FRANCE ---------- */
-
-fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
-  .then(response => response.json())
-  .then(data => {
-
-var franceLayer = L.geoJSON(data, {
-  style: {
-    fillColor: "url(#franceTexture)",
-    fillOpacity: 0,
-    color: "gold",
-    weight: 1
-  }
-}).addTo(map);
-
-    var bounds = franceLayer.getBounds();
-
-    map.fitBounds(bounds, {
-      padding: [40, 40],
-      animate: true,
-      duration: 1.2
-    });
-
-    var bounds = franceLayer.getBounds();
-
-    var franceImage = L.imageOverlay("https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg", bounds, {
-        opacity: 1
-    }).addTo(map);
-
-franceImage.bringToBack();
-
-    map.setMaxBounds(bounds.pad(0.2));
-    map.invalidateSize();
-  
-  /* ---------- STORE MUSEUMS ---------- */
-
+// Store museums
 var museums = [];
 
 function addMuseum(lat, lng, name, img, link, description) {
   museums.push({ lat, lng, name, img, link, description });
 }
 
+// Load France
+fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries/FRA.geo.json")
+.then(response => response.json())
+.then(data => {
 
-/* ---------- ADD MUSEUM MARKERS ---------- */
+  // France outline layer
+  var franceLayer = L.geoJSON(data, {
+    style: {
+      color: "#D4AF37",
+      weight: 2,
+      fillOpacity: 0
+    }
+  }).addTo(map);
 
-    museums.forEach(m => {
+  var bounds = franceLayer.getBounds();
 
-      var marker = L.circleMarker([m.lat, m.lng], {
-        radius: 6,
-        fillColor: "black",
-        color: "white",
-        weight: 1.5,
-        fillOpacity: 1
-      }).addTo(map);
+  // Image that fills France bounds
+  var franceTexture = L.imageOverlay(
+    "https://images.rawpixel.com/image_social_square/cHJpdmF0ZS9zdGF0aWMvZmlsZXMvd2Vic2l0ZS8yMDIyLTA5L3NtaXRoc25jaHNkbTZhYTRjYzMxZjU2MjIwMDAwMDEtaW1hZ2UuanBn.jpg",   // replace with your image
+    bounds,
+    { opacity: 0.9 }
+  ).addTo(map);
 
-      var popupContent = `
-        <div class="popup-content">
-          <strong>${m.name}</strong><br><br>
-          <img src="${m.img}">
-          ${m.description}<br><br>
-          <a href="${m.link}" target="_blank">Visit website</a>
-        </div>
-      `;
+  franceTexture.bringToBack();
 
-      marker.bindPopup(popupContent, {
-        closeButton: false,
-        autoClose: false
-      });
+  map.fitBounds(bounds, {
+    padding: [40, 40],
+    animate: true,
+    duration: 1.2
+  });
 
-      marker.on('mouseover', function () {
-        this.openPopup();
-      });
+  map.setMaxBounds(bounds.pad(0.2));
+  map.invalidateSize();
 
-      marker.on('mouseout', function () {
-        this.closePopup();
-      });
+  // Add museum markers
+  museums.forEach(m => {
 
+    var marker = L.circleMarker([m.lat, m.lng], {
+      radius: 7,
+      fillColor: "black",
+      color: "white",
+      weight: 1.5,
+      fillOpacity: 1
+    }).addTo(map);
+
+    var popupContent = `
+      <div class="popup-content">
+        <strong>${m.name}</strong><br><br>
+        <img src="${m.img}">
+        ${m.description}<br><br>
+        <a href="${m.link}" target="_blank">Visit website</a>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent, {
+      closeButton: false,
+      autoClose: false
+    });
+
+    marker.on('mouseover', function () {
+      this.openPopup();
+    });
+
+    marker.on('mouseout', function () {
+      this.closePopup();
     });
 
   });
 
-/* ---------- SAMPLE MUSEUM ---------- */
+});
 
+
+// Example museum
 addMuseum(
-  48.8606, 
-  2.3376, 
+  48.8606,
+  2.3376,
   "Louvre Museum",
   "https://upload.wikimedia.org/wikipedia/commons/a/a6/Paris_July_2011-27a.jpg",
   "https://www.louvre.fr",
